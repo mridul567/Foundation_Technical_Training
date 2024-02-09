@@ -38,7 +38,7 @@ class ICarLeaseRepository(ABC):
         pass
 
     @abstractmethod
-    def createLease(self, customerID: int, carID: int, startDate: date, endDate: date) :
+    def createLease(self, customerID: int, carID: int, startDate: date, endDate: date,type: str) :
         pass
 
     @abstractmethod
@@ -46,13 +46,14 @@ class ICarLeaseRepository(ABC):
         pass
 
     @abstractmethod
-    def listActiveLeases(self):
+    def listActiveLeases(self,date):
         pass
 
     @abstractmethod
-    def listLeaseHistory(self) :
+    def listLeaseHistory(self,date) :
         pass
 
     @abstractmethod
     def recordPayment(self, lease, amount: float):
         pass
+
