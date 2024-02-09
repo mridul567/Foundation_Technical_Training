@@ -3,6 +3,7 @@ from mysql.connector import Error
 
 from dao.ICarLeaseRepository import ICarLeaseRepository
 from entity.lease import Lease
+from  datetime import date
 
 
 class ICarLeaseRepositoryImpl(ICarLeaseRepository):
@@ -14,7 +15,8 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
         try:
             connection = mysql.connector.connect(**self.connection_params)
             if connection.is_connected():
-                print("Connected to MySQL database")
+                print("Congratulations!!!")
+                print("Database Connected Successfully..")
                 return connection
         except Error as e:
             print(f"Error: {e}")
@@ -23,17 +25,19 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
     def close_connection(self):
         if self.connection.is_connected():
             self.connection.close()
-            print("Connection closed")
+            print("Connection Over....")
 
 
     def addCar(self, car):
         try:
             cursor = self.connection.cursor()
-            query = "INSERT INTO vehicle (vehicleID, make, model, year, dailyRate, status, passengerCapacity, engineCapacity) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            query = ("INSERT INTO vehicle (vehicleID, make, model, year,"
+                     " dailyRate, status, passengerCapacity, engineCapacity) "
+                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
             values = (car.vehicleID, car.make, car.model, car.year, car.dailyRate, car.status, car.passengerCapacity, car.engineCapacity)
             cursor.execute(query, values)
             self.connection.commit()
-            print("Car added successfully")
+            print("Car added successfully!!")
         except Error as e:
             print(f"Error: {e}")
         finally:
@@ -46,7 +50,7 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             values = (carID,)
             cursor.execute(query, values)
             self.connection.commit()
-            print("Car removed successfully")
+            print("Car removed successfully!!")
         except Error as e:
             print(f"Error: {e}")
         finally:
@@ -87,7 +91,7 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             if result:
                 return result
             else:
-                raise Exception(f"Car with ID {carID} not found")
+                raise Exception(f"Car with ID {carID} not found..")
         except Error as e:
             print(f"Error: {e}")
         finally:
@@ -100,7 +104,7 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             values = (customer.customerID, customer.firstName, customer.lastName, customer.email, customer.phoneNumber)
             cursor.execute(query, values)
             self.connection.commit()
-            print("Customer added successfully")
+            print("Customer added successfully!!!")
         except Error as e:
             print(f"Error: {e}")
         finally:
@@ -113,7 +117,7 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             values = (customerID,)
             cursor.execute(query, values)
             self.connection.commit()
-            print("Customer removed successfully")
+            print("Customer removed successfully!!")
         except Error as e:
             print(f"Error: {e}")
         finally:
@@ -147,7 +151,7 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
         finally:
             cursor.close()
 
-    def createLease(self, customerID: int, carID: int, startDate, endDate):
+    def createLease(self, customerID: int, carID: int, startDate, endDate,type:str):
         try:
             cursor = self.connection.cursor()
 
@@ -159,16 +163,17 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             new_lease_id = max_lease_id + 1 if max_lease_id is not None else 1
 
             # Insert the new lease record with the calculated leaseID
-            query = "INSERT INTO lease (leaseID, vehicleID, customerID, startDate, endDate) VALUES (%s, %s, %s, %s, %s)"
-            values = (new_lease_id, carID, customerID, startDate, endDate)
+            query = ("INSERT INTO lease (leaseID, vehicleID, customerID, startDate, endDate,type) "
+                     "VALUES (%s, %s, %s, %s, %s, %s)")
+            values = (new_lease_id, carID, customerID, startDate, endDate,type)
             cursor.execute(query, values)
             self.connection.commit()
 
             # Return the Lease object with the calculated leaseID
-            return Lease(new_lease_id, carID, customerID, startDate, endDate)
+            return Lease(new_lease_id, carID, customerID, startDate, endDate,type)
 
         except Error as e:
-            print(f"Error: {e}")
+            print(f"Error: Lease cannot be created")
         finally:
             cursor.close()
 
@@ -193,8 +198,8 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
         finally:
             cursor.close()
 
-    def listActiveLeases(self):
-        try:
+    def listActiveLeases(self,date):
+       ''' try:
             cursor = self.connection.cursor()
             query = "SELECT * FROM lease WHERE endDate >= CURRENT_DATE"
             cursor.execute(query)
@@ -204,19 +209,30 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             print(f"Error: {e}")
         finally:
             cursor.close()
-
-    def listLeaseHistory(self):
-        try:
-            cursor = self.connection.cursor()
-            query = "SELECT * FROM lease WHERE endDate < CURRENT_DATE"
-            cursor.execute(query)
-            result = cursor.fetchall()
-
-            return result
-        except Error as e:
-            print(f"Error: {e}")
-        finally:
-            cursor.close()
+'''
+       cur = self.connection.cursor()
+       query = "select * from Lease where endDate > '{}'".format(date)
+       cur.execute(query)
+       result = cur.fetchall()
+       if result:
+           for record in result:
+               print(record)
+           self.connection.commit()
+           print("Active leases fetched ...")
+       else:
+           print("No records found for Active Leases..")
+    def listLeaseHistory(self,date):
+        cur = self.connection.cursor()
+        query = "select * from Lease where endDate < '{}'".format(date)
+        cur.execute(query)
+        result = cur.fetchall()
+        if result:
+            for record in result:
+                print(record)
+            self.connection.commit()
+            print("Lease History fetched ...")
+        else:
+            print("No records found for Lease History..")
 
     def recordPayment(self, leaseID: int, amount: float):
         try:
@@ -225,8 +241,20 @@ class ICarLeaseRepositoryImpl(ICarLeaseRepository):
             values = (leaseID, amount)
             cursor.execute(query, values)
             self.connection.commit()
-            print("Payment recorded successfully")
+            print("Payment recorded successfully!!!")
         except Error as e:
             print(f"Error: {e}")
         finally:
             cursor.close()
+
+    def total_revenue(self):
+        cursor = self.connection.cursor()
+        query = "select SUM(amount) AS money FROM Payment"
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result:
+            amt = result[0]
+        else:
+            amt = 0
+        cursor.close()
+        print("Total Revenue is :", amt)
