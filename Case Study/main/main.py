@@ -8,15 +8,16 @@ def menu():
     print("1. Add Car")
     print("2. Remove Car")
     print("3. List Available Cars")
-    print("4. Add Customer")
-    print("5. Remove Customer")
-    print("6. List Customers")
-    print("7. Create Lease")
-    print("8. List Active Leases")
-    print("9. Lease History")
-    print("10. Record Payment for a Lease")
-    print("11. Return Car")
-    print("12. Total Revenue")
+    print("4. List Rented Cars")
+    print("5. Add Customer")
+    print("6. Remove Customer")
+    print("7. List Customers")
+    print("8. Create Lease")
+    print("9. List Active Leases")
+    print("10. Lease History")
+    print("11. Record Payment for a Lease")
+    print("12. Return Car")
+    print("13. Total Revenue")
     print("0. Exit")
 
 
@@ -34,7 +35,7 @@ def main():
     while True:
         print("\n--- Welcome to Car Rental System------")
         menu()
-        choice = input("Enter your choice (0-12): ")
+        choice = input("Enter your choice (0-13): ")
 
         if choice == "1":
             new_car = Vehicle(vehicleID=int(input("Enter Vehicle ID: ")),
@@ -60,6 +61,12 @@ def main():
                 print(car)
 
         elif choice == "4":
+            rented_cars = car_repository.listRentedCars()
+            print("Rented Cars:")
+            for car in rented_cars:
+                print(car)
+
+        elif choice == "5":
             new_customer = Customer(customerID=int(input("Enter Customer ID: ")),
                                     firstName=input("Enter First Name: "),
                                     lastName=input("Enter Last Name: "),
@@ -69,26 +76,27 @@ def main():
             car_repository.addCustomer(new_customer)
             #print("Customer added successfully!!!")
 
-        elif choice == "5":
+        elif choice == "6":
             cus_id = int(input("Enter the customer id: "))
             car_repository.removeCustomer(cus_id)
 
-        elif choice == "6":
+        elif choice == "7":
             customers = car_repository.listCustomers()
             print("Customers:")
             for customer in customers:
                 print(customer)
 
-        elif choice == "7":
+        elif choice == "8":
             #start_date = date(2024, 2, 5)
             #end_date = date(2024, 2, 15)
             new_lease = car_repository.createLease(customerID=int(input("Enter Customer ID: ")),
                                                    carID=int(input("Enter Car ID: ")),
                                                    startDate=input("Enter Start Date date(yy-mm-dd): "),
-                                                   endDate=input("Enter End Date date(yy-mm-dd): "))
+                                                   endDate=input("Enter End Date date(yy-mm-dd): "),
+                                                   type = input("Enter the type(monthly or daily): "))
             print("Lease created:", new_lease)
 
-        elif choice == "8":
+        elif choice == "9":
            ''' active_leases = car_repository.listActiveLeases()
             print("Active Leases:")
             for lease in active_leases:
@@ -97,23 +105,24 @@ def main():
            search_date = input("Enter today's date to search for Active Leases :")
            car_repository.listActiveLeases(search_date)
 
-        elif choice == "9":
+        elif choice == "10":
             date = input("Enter today's date to search for Lease History:")
             car_repository.listLeaseHistory(date)
 
-        elif choice == "10":
+        elif choice == "11":
             lease_id = int(input("Enter Lease ID: "))
             payment_amount = float(input("Enter Payment Amount: "))
             car_repository.recordPayment(leaseID=lease_id, amount=payment_amount)
             print("Payment recorded successfully!!")
 
-        elif choice == "11":
+        elif choice == "12":
             lease_id = int(input("Enter Lease ID: "))
             returned_lease = car_repository.returnCar(leaseID=lease_id)
             print("Car returned. Updated Lease information:", returned_lease)
 
-        elif choice == "12":
+        elif choice == "13":
             car_repository.total_revenue()
+
 
         elif choice == "0":
             print("Signing offf Car Rental System. Thanks for Visiting..")
@@ -121,7 +130,7 @@ def main():
             break
 
         else:
-            print("Invalid choice. Please enter a number between 0 and 12 ")
+            print("Invalid choice. Please enter a number between 0 and 13 ")
 
 if __name__ == "__main__":
     main()
